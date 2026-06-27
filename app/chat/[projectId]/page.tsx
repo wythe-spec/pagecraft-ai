@@ -62,7 +62,7 @@ export default function ChatPage() {
 
   const {
     messages: chatMessages,
-    handleSubmit,
+    append,
     isLoading,
     stop,
     setMessages,
@@ -141,9 +141,9 @@ export default function ChatPage() {
         timestamp: new Date().toISOString(),
       };
       addMessage(activeProject.id, userMsg);
-      handleSubmit(undefined, { body: {} });
+      append({ role: "user", content });
     },
-    [activeProject, addMessage, handleSubmit]
+    [activeProject, addMessage, append]
   );
 
   const handleSelectPrompt = useCallback(
