@@ -1,21 +1,23 @@
-import { deepseek } from "@/lib/deepseek";
 import { SYSTEM_PROMPT } from "@/lib/system-prompt";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { streamText } from "ai";
 
 export const runtime = "edge";
 
+const deepseek = createOpenAICompatible({
+  name: "deepseek",
+  baseURL: "https://api.deepseek.com/v1",
+  apiKey: process.env.DEEPSEEK_API_KEY ?? "",
+});
+
 export async function POST(req: Request) {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
-    return Response.json(
-      { error: "DEEPSEEK_API_KEY is not configured. Please set it in .env.local" },
-      { status: 500 }
-    );
+    return Response.json({ error: "DEEPSEEK_API_KEY is not configured." }, { status: 500 });
   }
 
   try {
     const { messages } = await req.json();
-
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return Response.json({ error: "No messages provided" }, { status: 400 });
     }
@@ -30,15 +32,21 @@ export async function POST(req: Request) {
         })),
       ],
       temperature: 0.7,
-      maxTokens: 4096,
+      maxTokens: 16000,
     });
 
-    return result.toDataStreamResponse();
+    return result.toDataStreamResponse({
+      getErrorMessage: (error) => {
+        if (error instanceof Error) {
+          const detail = (error as any).data ? JSON.stringify((error as any).data) : "";
+          return `${error.message}${detail ? " | " + detail : ""}`;
+        }
+        return String(error);
+      },
+    });
   } catch (err) {
-    console.error("Chat API error:", err);
-    return Response.json(
-      { error: "Failed to generate response. Please try again." },
-      { status: 500 }
-    );
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Chat API error:", message);
+    return Response.json({ error: `Generation failed: ${message}` }, { status: 500 });
   }
 }

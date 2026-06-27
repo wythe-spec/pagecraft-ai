@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Message } from "@/lib/types";
 import { MessageBubble } from "./MessageBubble";
 import { QuickPrompts } from "./QuickPrompts";
@@ -15,6 +14,7 @@ interface MessageListProps {
 
 export function MessageList({ messages, isLoading, onSelectPrompt }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -22,7 +22,7 @@ export function MessageList({ messages, isLoading, onSelectPrompt }: MessageList
 
   if (messages.length === 0 && !isLoading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center">
+      <div className="flex-1 flex flex-col items-center justify-center overflow-hidden">
         <h2 className="text-lg font-semibold mb-2">Start Building</h2>
         <p className="text-sm text-muted-foreground mb-6">
           Describe your landing page or pick a template
@@ -33,7 +33,10 @@ export function MessageList({ messages, isLoading, onSelectPrompt }: MessageList
   }
 
   return (
-    <ScrollArea className="flex-1">
+    <div
+      ref={containerRef}
+      className="flex-1 overflow-y-auto min-h-0"
+    >
       <div className="py-4">
         {messages.map((msg) => (
           <MessageBubble key={msg.id} message={msg} />
@@ -54,6 +57,6 @@ export function MessageList({ messages, isLoading, onSelectPrompt }: MessageList
         )}
         <div ref={bottomRef} />
       </div>
-    </ScrollArea>
+    </div>
   );
 }

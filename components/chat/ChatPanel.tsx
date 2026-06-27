@@ -25,12 +25,12 @@ export function ChatPanel({
   onSelectPrompt,
 }: ChatPanelProps) {
   return (
-    <div className="flex flex-col h-full border-r">
+    <div className="flex flex-col h-full border-r overflow-hidden">
       <div className="flex items-center h-12 px-4 border-b shrink-0">
         <h2 className="font-medium text-sm truncate">{projectName}</h2>
       </div>
       {error && (
-        <div className="mx-4 mt-3 flex items-start gap-2 rounded-lg bg-destructive/10 text-destructive px-3 py-2 text-sm">
+        <div className="mx-4 mt-3 flex items-start gap-2 rounded-lg bg-destructive/10 text-destructive px-3 py-2 text-sm shrink-0">
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <div>
             <p className="font-medium">Generation failed</p>
